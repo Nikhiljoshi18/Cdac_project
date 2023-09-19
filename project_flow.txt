@@ -1,0 +1,156 @@
+Important Points for the Project 
+
+1)Login and Register :
+ - When we are registering as a player or coach we are sending the role of the user from frontend and storing it in the database using rest api created in the backend.
+ -When we try to login attributes as role,isloggedin,pid,email we store that information in key-value pairs in the local storage. 
+ -So basically we are storing the information of the user/coach/login in the local-storage
+
+2)Now User have logged in and now he will register for the club.
+
+ -From frontend using axios library we will call rest api named /player/joinclub/{clubid} . So we are basically passing clubid and playerid from frontend and in backend we have created rest api in the 
+  backend for joining the club. Using club id and player id we are fetching club and player present in the database and we will register(set the club of the player) that player under that club and we will fetch list of all players 
+  from that club and add that player in the club and we are storing two attributes isregisteredforclub-true and clubid-clubid in the local storage for registered player in the club.
+
+
+3)For rendering the view according to roles  we have made one page Home.jsx in that we fetch user roles from the local-storage and compare role with PLAYER,COACH and ADMIN and render the view according to the role.
+
+4)User Functionaltiess:
+ -User can book the ground for his personal use 
+ -User can register for the training batch
+ -User can request for the Personal Coach.
+
+
+5)Admin Functionaties
+-Admin can add or delete a player
+-Admin can add or delete a coach
+-Admin can add a training batch
+-Admin accepts the request of personal Coach 
+
+6)Coach Functionalities:-
+-Coach can view students under his personal guidance
+-Coach can view training batch he is teaching
+
+
+
+User Part:
+
+1) When User send request for the personal coach first it is checked whether he/she has already requested for the personal coach or not. We can do this by using localstorage. We check that localStorage.getItem("coachbooking")
+  is not equal to null. If condition is true then he have already booked the coach.SO we will use toast functionality to display that you have already requested for the personal coach.
+
+2)We have created rest api for fetching the list of coaches available in that club and we have displayed it in the frontend from a coach component.
+
+3)When we are requesting for the personal coach, player id and coach id from the frontend is passed to the backend.
+
+4)Player and coach details (for the personal coach request) are fetched from the database.
+  We have created one PersonalTrainingRequest service class and we are setting coach and player to the request object of PersonalTrainingRequest and updating that using service class method.
+
+5) Using clubid stored in the localstorage we are fetching list of grounds available in the club by calling rest api /admin/getallgrounds present in the backend. So Basically we are passing club id to the backend and fetching
+  list of all grounds available because there is @OnetoMany relationships between club and grounds.So we will display that in the frontend.
+
+6)Similarly we are fetching training batches and all coaches data from the backend using restapi and axios.
+
+7)For Joining training group first of all we will check whether the particular player is already present in any training group or not. we are using localStorage to find that.If  if (localStorage.getItem("trainingbooking") !== null)
+
+ is true then he/she is already present in the training group.If not present in any training group then we will pass training group id and fetching playerid from the localStorage and passing to the restapi present in the backend.
+
+ So we will fetch training group and player by using groupid and playerid.
+
+8)We will fetch list of players under that group.we will add that player to list of players in that group.We will set_players of group and set group of the player.  
+
+9)We will fetch player_count of the group and update the count.We are updating the count because we have added a functionality that one group cannot have more than 2 players.So we update the count of the player for that group.
+
+10)By using service methods we update player and group.(for registering for the training batch)
+
+
+Admin Part:-
+ 
+1)Approve  personal coach requests for the user:-
+
+ -We have created a rest api for fetching all personal request of coaches in admin controller.
+
+ -we have created a status variable for this functionality.
+ -We are setting status to Waiting when user request for a personal coach.
+
+ -We have created a rest api for approving all personal coach. When we are approving any coach request then we are send unique requestid from the front end with rest api call to the backend. From requestid we are fetching PersonalTrainingRequest object.
+  Then we are setting the status variable to Approved. Then we are fetching details of the player and coach from the request object.
+  Then we are setting personalcoach of the player. Then we are fetching list of players under the coach and adding the player for the coach to the list of the players.
+  Finally we are updating coach and player using service methods of coach and player.
+
+
+2)Add or delete a coach:
+- Admin can add a coach.We have created a rest api for that in the coach controller.We are sending data of the coach from the frontend in the requestbody and then recieving data from the frontend and adding that coach to 
+  the database using service methods.
+ 
+-When we have to delete a coach from the application,admin has the power to delete the coach. So for that we have created a rest api for deleting coach in the coach controller for that.
+
+ We are passing id of the coach to the backend rest api method and then deleting the coach from the database from using service methods of the coachservice class.
+
+ - We cannot delete a coach if coach is training any training group or he/she is coaching an individual players because there are 3 tables in the database (training_group,users,personaltrainingrequest,player(for personal coach)) 
+   taking refrence from the coach attributes like coach id (primary key) and coach email(primary key).
+
+
+
+3) Add or delete a player.
+
+ -Admin can add a player in the application.To add a player we have created a rest api in the user controller. We are sending the data of the user from the frontend to the backend method in the form of requestbody.
+  Then using service methods we are saving the player to the database.
+
+ -Admin can delete a player.When admin wants to delete a player , it sends player id with restapi call to the backend and using player id of the player we delete the player from the application by using service
+  methods of player class.
+
+-As player table is linked with many tables like booking,personal_training_request,club,traininggroup. So if player is using any services, admin cannot delete that player because many tables attributes will be 
+ refrencing from primary key of the player table.
+
+
+4) Add a training batch for the club.
+
+ -Admin can add a training batch for the club. We have created restapi for the adding the training batch in the club-controller.
+This is a Java Spring REST API endpoint for adding a training group to a club and assigning a coach to it. Here's a breakdown of what the code does:
+
+1)The method takes in three parameters: the coach ID, the club ID, and the training group object in JSON format.
+2)It retrieves the club object from the database using the club ID.
+3)If the club is not found, it returns 0.
+4)It retrieves the list of training groups for the club. If the list is null, it creates a new ArrayList.
+5)It adds the new training group to the list.
+6)It sets the list of training groups for the club to the updated list.
+7)It sets the club for the new training group.
+8)It sets the player count for the new training group to 0 if it is null.
+9)It updates the club and the new training group in the database.
+10)It retrieves the coach object from the database using the coach ID.
+11)It retrieves the list of training groups for the coach. If the list is null, it creates a new ArrayList.
+12)It adds the new training group to the list.
+13)It sets the list of training groups for the coach to the updated list.
+14)It sets the coach for the new training group.
+15)It updates the coach and the new training group in the database.
+16)It returns 1.
+The endpoint assumes that the service object and the coachService object are already instantiated and that they have methods to retrieve, update, and save objects in the database.
+
+-Coach Functionalities:-
+
+1) Coach can view training group under him.
+
+ - For that we have created restapi for the fetching list of training groups under him/her.So we are fetching coach_id from the local-Storage and passing the coachid with rest api call from the frontend to the 
+  backend and using coach id we are fetching coach from the database and using fetched coach we are fetching list of  Training group under him.
+
+2)Coach can view personal training requests:-
+
+This is a Java code snippet for a method that retrieves all the personal training requests for a coach with a given ID.
+
+The method is annotated with @GetMapping which indicates that this method can handle HTTP GET requests on the specified endpoint. The endpoint is /getAllPersonalTrainee/{coachid}, where {coachid} is a path variable that represents the ID of the coach for whom the personal training requests are being retrieved.
+
+Inside the method, the first line retrieves the coach object using the getById method of the service object. If the coach object is null, then the method returns null.
+
+The next line retrieves all the personal training requests using the getAll method of the requestService object. If the list of personal training requests is null, then the method returns null.
+
+Finally, the method uses the filter and toList methods of the Stream API to filter the list of personal training requests by the coach ID and returns the filtered list.
+
+Overall, this code retrieves all the personal training requests for a coach with a given ID and returns them in a list. If the coach ID is invalid or if there are no personal training requests for the coach, then the method returns null.
+
+
+
+
+
+
+
+
+
